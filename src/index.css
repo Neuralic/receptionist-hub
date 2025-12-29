@@ -6,23 +6,23 @@
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 221 39% 11%;
+    --background: 220 14% 96%;
+    --foreground: 224 71% 4%;
 
     --card: 0 0% 100%;
-    --card-foreground: 221 39% 11%;
+    --card-foreground: 224 71% 4%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 221 39% 11%;
+    --popover-foreground: 224 71% 4%;
 
     --primary: 239 84% 67%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 13% 91%;
-    --secondary-foreground: 221 39% 11%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 224 71% 4%;
 
-    --muted: 210 20% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 220 9% 46%;
 
     --accent: 239 84% 67%;
     --accent-foreground: 0 0% 100%;
@@ -33,6 +33,9 @@
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
+    --info: 199 89% 48%;
+    --info-foreground: 0 0% 100%;
+
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
@@ -42,30 +45,26 @@
 
     --radius: 0.75rem;
 
-    /* Gradient tokens */
-    --gradient-primary: linear-gradient(135deg, hsl(239 84% 67%) 0%, hsl(258 90% 66%) 100%);
-    --gradient-success: linear-gradient(135deg, hsl(160 84% 39%) 0%, hsl(142 76% 36%) 100%);
-    --gradient-warning: linear-gradient(135deg, hsl(38 92% 50%) 0%, hsl(25 95% 53%) 100%);
-    --gradient-info: linear-gradient(135deg, hsl(199 89% 48%) 0%, hsl(217 91% 60%) 100%);
+    /* Sidebar - Dark theme */
+    --sidebar-background: 224 71% 4%;
+    --sidebar-foreground: 210 20% 98%;
+    --sidebar-primary: 239 84% 67%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 217 33% 17%;
+    --sidebar-accent-foreground: 210 20% 98%;
+    --sidebar-border: 217 33% 17%;
+    --sidebar-muted: 215 20% 65%;
+    --sidebar-ring: 239 84% 67%;
 
     /* Shadow tokens */
     --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
     --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
     --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
     --shadow-card: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
-
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 221 39% 11%;
-    --sidebar-primary: 239 84% 67%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 20% 96%;
-    --sidebar-accent-foreground: 221 39% 11%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 239 84% 67%;
   }
 
   .dark {
-    --background: 221 39% 11%;
+    --background: 224 71% 4%;
     --foreground: 210 20% 98%;
 
     --card: 222 47% 11%;
@@ -93,13 +92,14 @@
     --input: 217 33% 17%;
     --ring: 239 84% 67%;
 
-    --sidebar-background: 222 47% 11%;
+    --sidebar-background: 224 71% 4%;
     --sidebar-foreground: 210 20% 98%;
     --sidebar-primary: 239 84% 67%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 217 33% 17%;
     --sidebar-accent-foreground: 210 20% 98%;
     --sidebar-border: 217 33% 17%;
+    --sidebar-muted: 215 20% 65%;
     --sidebar-ring: 239 84% 67%;
   }
 }
@@ -116,22 +116,6 @@
 }
 
 @layer components {
-  .gradient-primary {
-    background: var(--gradient-primary);
-  }
-
-  .gradient-success {
-    background: var(--gradient-success);
-  }
-
-  .gradient-warning {
-    background: var(--gradient-warning);
-  }
-
-  .gradient-info {
-    background: var(--gradient-info);
-  }
-
   .shadow-card {
     box-shadow: var(--shadow-card);
   }
@@ -143,11 +127,11 @@
 
 @layer utilities {
   .animate-fade-in {
-    animation: fadeIn 0.5s ease-out forwards;
+    animation: fadeIn 0.4s ease-out forwards;
   }
 
   .animate-slide-up {
-    animation: slideUp 0.5s ease-out forwards;
+    animation: slideUp 0.4s ease-out forwards;
   }
 
   .animate-scale-in {
@@ -166,7 +150,7 @@
   @keyframes slideUp {
     from {
       opacity: 0;
-      transform: translateY(20px);
+      transform: translateY(10px);
     }
     to {
       opacity: 1;
@@ -185,8 +169,8 @@
     }
   }
 
-  .stagger-1 { animation-delay: 0.1s; }
-  .stagger-2 { animation-delay: 0.2s; }
-  .stagger-3 { animation-delay: 0.3s; }
-  .stagger-4 { animation-delay: 0.4s; }
+  .stagger-1 { animation-delay: 0.05s; }
+  .stagger-2 { animation-delay: 0.1s; }
+  .stagger-3 { animation-delay: 0.15s; }
+  .stagger-4 { animation-delay: 0.2s; }
 }

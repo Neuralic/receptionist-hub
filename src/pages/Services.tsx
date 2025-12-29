@@ -63,7 +63,6 @@ export default function Services() {
       if (result.data) {
         setServices(result.data.services);
       } else {
-        // Use mock data if API fails
         setServices(mockServices);
       }
       setIsLoading(false);
@@ -110,7 +109,6 @@ export default function Services() {
         setServices(services.map(s => s.id === editingService.id ? { ...s, ...serviceData } : s));
         toast({ title: 'Service updated successfully' });
       } else {
-        // Update locally for demo
         setServices(services.map(s => s.id === editingService.id ? { ...s, ...serviceData } : s));
         toast({ title: 'Service updated successfully' });
       }
@@ -120,7 +118,6 @@ export default function Services() {
         setServices([...services, result.data.service]);
         toast({ title: 'Service created successfully' });
       } else {
-        // Add locally for demo
         const newService = { ...serviceData, id: Date.now().toString() };
         setServices([...services, newService]);
         toast({ title: 'Service created successfully' });
@@ -258,8 +255,8 @@ export default function Services() {
             {services.map((service, index) => (
               <Card 
                 key={service.id} 
-                className="overflow-hidden shadow-card hover:shadow-elevated transition-shadow duration-300 animate-slide-up opacity-0"
-                style={{ animationDelay: `${index * 0.1}s` }}
+                className="overflow-hidden bg-card border-border hover:shadow-elevated transition-all duration-300 animate-slide-up opacity-0"
+                style={{ animationDelay: `${index * 0.05}s` }}
               >
                 <div className="aspect-video relative overflow-hidden">
                   <img
@@ -267,13 +264,15 @@ export default function Services() {
                     alt={service.name}
                     className="w-full h-full object-cover"
                   />
-                  <Badge className="absolute top-3 left-3">{service.category}</Badge>
+                  <Badge className="absolute top-3 left-3 bg-card/90 text-foreground border-0">
+                    {service.category}
+                  </Badge>
                 </div>
-                <CardContent className="p-4">
+                <CardContent className="p-5">
                   <h3 className="font-semibold text-foreground text-lg">{service.name}</h3>
                   <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{service.description}</p>
                   <div className="flex items-center gap-4 mt-4">
-                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                    <div className="flex items-center gap-1.5 text-sm text-muted-foreground">
                       <Clock className="w-4 h-4" />
                       {service.duration} min
                     </div>
@@ -282,7 +281,7 @@ export default function Services() {
                       {service.price}
                     </div>
                   </div>
-                  <div className="flex gap-2 mt-4">
+                  <div className="flex gap-2 mt-4 pt-4 border-t border-border">
                     <Button
                       variant="outline"
                       size="sm"
@@ -295,7 +294,7 @@ export default function Services() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-destructive hover:text-destructive"
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
                       onClick={() => handleDelete(service.id)}
                     >
                       <Trash2 className="w-4 h-4" />
