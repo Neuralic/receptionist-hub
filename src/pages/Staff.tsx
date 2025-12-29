@@ -202,26 +202,26 @@ export default function StaffPage() {
             {staff.map((member, index) => (
               <Card 
                 key={member.id}
-                className="shadow-card hover:shadow-elevated transition-shadow duration-300 animate-slide-up opacity-0"
-                style={{ animationDelay: `${index * 0.1}s` }}
+                className="bg-card border-border hover:shadow-elevated transition-all duration-300 animate-slide-up opacity-0"
+                style={{ animationDelay: `${index * 0.05}s` }}
               >
                 <CardContent className="p-6">
                   <div className="flex items-start gap-4">
                     <img
                       src={getAvatarUrl(member.name)}
                       alt={member.name}
-                      className="w-16 h-16 rounded-full"
+                      className="w-14 h-14 rounded-full"
                     />
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-foreground text-lg truncate">{member.name}</h3>
                       <div className="flex items-center gap-2 mt-2">
                         {member.calendarConnected ? (
-                          <Badge variant="secondary" className="gap-1 bg-success/10 text-success border-success/20">
+                          <Badge variant="secondary" className="gap-1 bg-success/10 text-success border-0">
                             <CheckCircle2 className="w-3 h-3" />
                             Calendar Synced
                           </Badge>
                         ) : (
-                          <Badge variant="secondary" className="gap-1 bg-warning/10 text-warning border-warning/20">
+                          <Badge variant="secondary" className="gap-1 bg-warning/10 text-warning border-0">
                             <XCircle className="w-3 h-3" />
                             Not Synced
                           </Badge>
@@ -263,7 +263,7 @@ export default function StaffPage() {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="text-destructive hover:text-destructive"
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
                       onClick={() => handleDelete(member.id)}
                     >
                       <Trash2 className="w-4 h-4" />
