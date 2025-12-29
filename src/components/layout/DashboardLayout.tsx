@@ -34,11 +34,16 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
       {/* Mobile Header */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-sidebar border-b border-sidebar-border px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-            <span className="text-primary-foreground font-bold text-sm">W</span>
+        <div className="flex items-center gap-2">
+          <div className="w-8 h-8 gradient-primary rounded-xl flex items-center justify-center">
+            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+            </svg>
           </div>
-          <span className="text-sidebar-foreground font-semibold">WhatsApp Receptionist</span>
+          <div>
+            <span className="text-sidebar-foreground font-bold text-base">ReceptHub</span>
+            <p className="text-xs text-sidebar-muted leading-none">AI Receptionist</p>
+          </div>
         </div>
         <Button
           variant="ghost"
