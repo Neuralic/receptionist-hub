@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MessageCircle, Loader2, AlertCircle } from 'lucide-react';
+import { Loader2, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const businessTypes = [
@@ -60,7 +60,7 @@ export default function Register() {
       login(result.data.token, result.data.user);
       toast({
         title: 'Account created!',
-        description: 'Welcome to WhatsApp Receptionist.',
+        description: 'Welcome to ReceptHub.',
       });
       navigate('/dashboard');
     }
@@ -71,11 +71,14 @@ export default function Register() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md animate-fade-in">
         <div className="text-center mb-8">
-          <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4">
-            <MessageCircle className="w-8 h-8 text-primary-foreground" />
+          {/* Updated Logo Section */}
+          <div className="w-16 h-16 gradient-primary rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+            <svg className="w-9 h-9 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+            </svg>
           </div>
-          <h1 className="text-2xl font-bold text-foreground">WhatsApp Receptionist</h1>
-          <p className="text-muted-foreground mt-1">AI-powered booking assistant</p>
+          <h1 className="text-2xl font-bold text-foreground">ReceptHub</h1>
+          <p className="text-muted-foreground mt-1">Never miss a booking again</p>
         </div>
 
         <Card className="shadow-elevated border-border">
