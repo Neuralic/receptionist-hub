@@ -11,6 +11,8 @@ import Dashboard from "./pages/Dashboard";
 import Services from "./pages/Services";
 import StaffPage from "./pages/Staff";
 import Bookings from "./pages/Bookings";
+import Settings from "./pages/Settings";
+import Help from "./pages/Help";
 import CalendarCallback from "./pages/CalendarCallback";
 import NotFound from "./pages/NotFound";
 
@@ -31,6 +33,8 @@ const App = () => (
             <Route path="/services" element={<Services />} />
             <Route path="/staff" element={<StaffPage />} />
             <Route path="/bookings" element={<Bookings />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/help" element={<Help />} />
             <Route path="/calendar/callback" element={<CalendarCallback />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
