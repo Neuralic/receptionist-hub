@@ -33,6 +33,7 @@ export default function StaffPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingStaff, setEditingStaff] = useState<Staff | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [syncingStaffId, setSyncingStaffId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -52,7 +53,88 @@ export default function StaffPage() {
       setIsLoading(false);
     };
     fetchStaff();
+
+    // Listen for OAuth callback
+    window.addEventListener('message', handleOAuthCallback);
+    return () => window.removeEventListener('message', handleOAuthCallback);
   }, []);
+
+  const handleOAuthCallback = async (event: MessageEvent) => {
+    // Only accept messages from our OAuth popup
+    if (event.data?.type === 'CALENDAR_OAUTH_SUCCESS') {
+      const { staffId } = event.data;
+      
+      // Refresh staff list to show updated calendar status
+      const result = await staffApi.getAll();
+      if (result.data) {
+        setStaff(result.data.staff);
+      }
+      
+      setSyncingStaffId(null);
+      toast({ 
+        title: 'Calendar connected!',
+        description: 'Staff member calendar has been synced successfully.'
+      });
+    } else if (event.data?.type === 'CALENDAR_OAUTH_ERROR') {
+      setSyncingStaffId(null);
+      toast({ 
+        title: 'Connection failed',
+        description: 'Could not connect calendar. Please try again.',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const handleCalendarSync = async (staffId: string) => {
+    setSyncingStaffId(staffId);
+    
+    try {
+      // Get OAuth URL from backend
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL || 'https://whatsapp-receptionist-backend.onrender.com/api'}/calendar/connect?staffId=${staffId}`,
+        {
+          headers: {
+            'Authorization': `Bearer ${localStorage.getItem('token')}`
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to get auth URL');
+      }
+
+      const { authUrl } = await response.json();
+
+      // Open OAuth popup
+      const width = 600;
+      const height = 700;
+      const left = window.screenX + (window.outerWidth - width) / 2;
+      const top = window.screenY + (window.outerHeight - height) / 2;
+
+      const popup = window.open(
+        authUrl,
+        'Calendar OAuth',
+        `width=${width},height=${height},left=${left},top=${top}`
+      );
+
+      // Poll popup to check if it closed
+      const pollTimer = setInterval(() => {
+        if (popup?.closed) {
+          clearInterval(pollTimer);
+          setSyncingStaffId(null);
+        }
+      }, 500);
+
+    } catch (error) {
+      console.error('Calendar sync error:', error);
+      setSyncingStaffId(null);
+      toast({
+        title: 'Connection failed',
+        description: 'Could not initiate calendar connection.',
+        variant: 'destructive'
+      });
+    }
+  };
 
   const resetForm = () => {
     setFormData({ name: '', email: '', phone: '' });
@@ -255,10 +337,15 @@ export default function StaffPage() {
                       variant="outline"
                       size="sm"
                       className="flex-1"
-                      disabled={member.calendarConnected}
+                      onClick={() => handleCalendarSync(member.id)}
+                      disabled={member.calendarConnected || syncingStaffId === member.id}
                     >
-                      <Calendar className="w-4 h-4 mr-1" />
-                      Sync
+                      {syncingStaffId === member.id ? (
+                        <Loader2 className="w-4 h-4 mr-1 animate-spin" />
+                      ) : (
+                        <Calendar className="w-4 h-4 mr-1" />
+                      )}
+                      {member.calendarConnected ? 'Synced' : 'Sync'}
                     </Button>
                     <Button
                       variant="outline"
