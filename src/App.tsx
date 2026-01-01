@@ -11,6 +11,7 @@ import Dashboard from "./pages/Dashboard";
 import Services from "./pages/Services";
 import StaffPage from "./pages/Staff";
 import Bookings from "./pages/Bookings";
+import CalendarCallback from "./pages/CalendarCallback";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/services" element={<Services />} />
             <Route path="/staff" element={<StaffPage />} />
             <Route path="/bookings" element={<Bookings />} />
+            <Route path="/calendar/callback" element={<CalendarCallback />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
