@@ -8,7 +8,8 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { businessApi, Business } from '@/lib/api';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { businessApi, faqApi, Business, FAQ } from '@/lib/api';
 import { 
   Building2, 
   Palette, 
@@ -18,7 +19,10 @@ import {
   CheckCircle2,
   MessageSquare,
   BookOpen,
-  Lock
+  Lock,
+  Plus,
+  Pencil,
+  Trash2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -32,6 +36,18 @@ export default function Settings() {
     brandColor: '',
     timezone: '',
     description: '',
+  });
+
+  // FAQ state
+  const [faqs, setFaqs] = useState<FAQ[]>([]);
+  const [loadingFaqs, setLoadingFaqs] = useState(false);
+  const [isFaqDialogOpen, setIsFaqDialogOpen] = useState(false);
+  const [editingFaq, setEditingFaq] = useState<FAQ | null>(null);
+  const [isSavingFaq, setIsSavingFaq] = useState(false);
+  const [faqFormData, setFaqFormData] = useState({
+    question: '',
+    answer: '',
+    category: 'General',
   });
   
   const { toast } = useToast();
@@ -47,13 +63,29 @@ export default function Settings() {
           logoUrl: biz.logoUrl || '',
           brandColor: biz.brandColor || '#4F46E5',
           timezone: biz.timezone || 'UTC',
-          description: '', // Add this to backend later
+          description: '',
         });
       }
       setIsLoading(false);
     };
     fetchBusiness();
   }, []);
+
+  // Fetch FAQs
+  useEffect(() => {
+    const fetchFaqs = async () => {
+      setLoadingFaqs(true);
+      const result = await faqApi.getAll();
+      if (result.data) {
+        setFaqs(result.data.faqs);
+      }
+      setLoadingFaqs(false);
+    };
+    
+    if (!isLoading) {
+      fetchFaqs();
+    }
+  }, [isLoading]);
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -96,6 +128,54 @@ export default function Settings() {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const resetFaqForm = () => {
+    setFaqFormData({ question: '', answer: '', category: 'General' });
+    setEditingFaq(null);
+  };
+
+  const handleOpenFaqDialog = (faq?: FAQ) => {
+    if (faq) {
+      setEditingFaq(faq);
+      setFaqFormData({
+        question: faq.question,
+        answer: faq.answer,
+        category: faq.category,
+      });
+    } else {
+      resetFaqForm();
+    }
+    setIsFaqDialogOpen(true);
+  };
+
+  const handleFaqSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSavingFaq(true);
+
+    if (editingFaq) {
+      const result = await faqApi.update(editingFaq.id, faqFormData);
+      if (result.data) {
+        setFaqs(faqs.map(f => f.id === editingFaq.id ? { ...f, ...faqFormData } : f));
+        toast({ title: 'FAQ updated successfully' });
+      }
+    } else {
+      const result = await faqApi.create(faqFormData);
+      if (result.data) {
+        setFaqs([...faqs, result.data.faq]);
+        toast({ title: 'FAQ added successfully' });
+      }
+    }
+
+    setIsSavingFaq(false);
+    setIsFaqDialogOpen(false);
+    resetFaqForm();
+  };
+
+  const handleDeleteFaq = async (id: string) => {
+    await faqApi.delete(id);
+    setFaqs(faqs.filter(f => f.id !== id));
+    toast({ title: 'FAQ deleted successfully' });
   };
 
   if (isLoading) {
@@ -327,31 +407,143 @@ export default function Settings() {
           <TabsContent value="knowledge" className="space-y-6">
             <Card className="bg-card border-border">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BookOpen className="w-5 h-5" />
-                  Knowledge Base
-                </CardTitle>
-                <CardDescription>
-                  Train your AI with business-specific information
-                </CardDescription>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle className="flex items-center gap-2">
+                      <BookOpen className="w-5 h-5" />
+                      Knowledge Base
+                    </CardTitle>
+                    <CardDescription>
+                      Train your AI with frequently asked questions
+                    </CardDescription>
+                  </div>
+                  <Dialog open={isFaqDialogOpen} onOpenChange={setIsFaqDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button onClick={() => handleOpenFaqDialog()} className="gap-2">
+                        <Plus className="w-4 h-4" />
+                        Add FAQ
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-lg">
+                      <DialogHeader>
+                        <DialogTitle>{editingFaq ? 'Edit FAQ' : 'Add FAQ'}</DialogTitle>
+                        <DialogDescription>
+                          {editingFaq ? 'Update the FAQ details' : 'Add a new frequently asked question'}
+                        </DialogDescription>
+                      </DialogHeader>
+                      <form onSubmit={handleFaqSubmit} className="space-y-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="category">Category</Label>
+                          <Input
+                            id="category"
+                            value={faqFormData.category}
+                            onChange={(e) => setFaqFormData({ ...faqFormData, category: e.target.value })}
+                            placeholder="e.g., Booking, Pricing, Services"
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="question">Question</Label>
+                          <Input
+                            id="question"
+                            value={faqFormData.question}
+                            onChange={(e) => setFaqFormData({ ...faqFormData, question: e.target.value })}
+                            placeholder="What customers might ask..."
+                            required
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="answer">Answer</Label>
+                          <Textarea
+                            id="answer"
+                            value={faqFormData.answer}
+                            onChange={(e) => setFaqFormData({ ...faqFormData, answer: e.target.value })}
+                            placeholder="How the AI should respond..."
+                            rows={4}
+                            required
+                          />
+                        </div>
+                        <div className="flex gap-3 pt-4">
+                          <Button type="button" variant="outline" className="flex-1" onClick={() => setIsFaqDialogOpen(false)}>
+                            Cancel
+                          </Button>
+                          <Button type="submit" className="flex-1" disabled={isSavingFaq}>
+                            {isSavingFaq ? <Loader2 className="w-4 h-4 animate-spin" /> : editingFaq ? 'Update' : 'Add'}
+                          </Button>
+                        </div>
+                      </form>
+                    </DialogContent>
+                  </Dialog>
+                </div>
               </CardHeader>
               <CardContent>
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
-                    <Lock className="w-8 h-8 text-primary" />
+                {loadingFaqs ? (
+                  <div className="flex items-center justify-center py-12">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
                   </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2">
-                    Coming Soon
-                  </h3>
-                  <p className="text-muted-foreground max-w-md">
-                    The Knowledge Base feature is currently in development. 
-                    You'll soon be able to upload FAQs, business policies, and custom responses 
-                    to make your AI receptionist even smarter.
-                  </p>
-                  <Badge variant="secondary" className="mt-4 bg-primary/10 text-primary border-0">
-                    Phase 2 Feature
-                  </Badge>
-                </div>
+                ) : faqs.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-4">
+                      <BookOpen className="w-8 h-8 text-primary" />
+                    </div>
+                    <h3 className="text-lg font-semibold text-foreground mb-2">
+                      No FAQs Yet
+                    </h3>
+                    <p className="text-muted-foreground max-w-md mb-4">
+                      Add frequently asked questions to help your AI provide accurate answers to customers.
+                    </p>
+                    <Button onClick={() => handleOpenFaqDialog()} className="gap-2">
+                      <Plus className="w-4 h-4" />
+                      Add Your First FAQ
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {Object.entries(
+                      faqs.reduce((acc, faq) => {
+                        const cat = faq.category || 'General';
+                        if (!acc[cat]) acc[cat] = [];
+                        acc[cat].push(faq);
+                        return acc;
+                      }, {} as Record<string, typeof faqs>)
+                    ).map(([category, categoryFaqs]) => (
+                      <div key={category} className="space-y-3">
+                        <h3 className="font-semibold text-foreground text-sm uppercase tracking-wide text-primary">
+                          {category}
+                        </h3>
+                        {categoryFaqs.map((faq) => (
+                          <Card key={faq.id} className="bg-muted/50 border-border">
+                            <CardContent className="p-4">
+                              <div className="flex items-start justify-between gap-4">
+                                <div className="flex-1 space-y-2">
+                                  <p className="font-medium text-foreground">{faq.question}</p>
+                                  <p className="text-sm text-muted-foreground">{faq.answer}</p>
+                                </div>
+                                <div className="flex gap-2">
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleOpenFaqDialog(faq)}
+                                  >
+                                    <Pencil className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                                    onClick={() => handleDeleteFaq(faq.id)}
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
