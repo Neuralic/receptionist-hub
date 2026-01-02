@@ -57,7 +57,7 @@ export const businessApi = {
 
 // Services
 export const servicesApi = {
-  getAll: () => apiRequest<{ services: Service[] }>('/business/services'),
+  getAll: () => api_request<{ services: Service[] }>('/business/services'),
   
   create: (data: Omit<Service, 'id'>) =>
     apiRequest<{ service: Service }>('/business/services', {
@@ -107,6 +107,28 @@ export const bookingsApi = {
     apiRequest<{ booking: Booking }>(`/bookings/${id}`, {
       method: 'PATCH',
       body: JSON.stringify({ status }),
+    }),
+};
+
+// FAQs
+export const faqApi = {
+  getAll: () => apiRequest<{ faqs: FAQ[] }>('/faqs'),
+  
+  create: (data: Omit<FAQ, 'id'>) =>
+    apiRequest<{ faq: FAQ }>('/faqs', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  update: (id: string, data: Partial<FAQ>) =>
+    apiRequest<{ faq: FAQ }>(`/faqs/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+
+  delete: (id: string) =>
+    apiRequest<void>(`/faqs/${id}`, {
+      method: 'DELETE',
     }),
 };
 
@@ -175,3 +197,11 @@ export interface Booking {
 }
 
 export type BookingStatus = 'pending' | 'confirmed' | 'completed' | 'cancelled';
+
+export interface FAQ {
+  id: string;
+  question: string;
+  answer: string;
+  category: string;
+  isActive?: boolean;
+}
