@@ -81,14 +81,3 @@
     "vite": "^5.4.19"
   }
 }
-```
-
----
-
-## **Also Update Render Build Command:**
-
-**Go to Render Dashboard → Settings → Build Command**
-
-**Change to just:**
-```
-npm run build
