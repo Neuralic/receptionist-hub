@@ -5,9 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "postbuild": "echo '/* /index.html   200' > dist/_redirects",
     "build": "vite build && echo '/*    /index.html   200' > dist/_redirects",
+    "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview"
   },
@@ -82,3 +81,14 @@
     "vite": "^5.4.19"
   }
 }
+```
+
+---
+
+## **Also Update Render Build Command:**
+
+**Go to Render Dashboard → Settings → Build Command**
+
+**Change to just:**
+```
+npm run build
