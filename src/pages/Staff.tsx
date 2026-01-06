@@ -64,10 +64,22 @@ export default function StaffPage() {
     if (event.data?.type === 'CALENDAR_OAUTH_SUCCESS') {
       const { staffId } = event.data;
       
+      console.log('OAuth success, refreshing staff list...');
+      
       // Refresh staff list to show updated calendar status
       const result = await staffApi.getAll();
       if (result.data) {
         setStaff(result.data.staff);
+        console.log('Staff list refreshed:', result.data.staff);
+      } else {
+        // If API fails, manually update the staff member
+        setStaff(prevStaff => 
+          prevStaff.map(s => 
+            s.id === staffId 
+              ? { ...s, calendarConnected: true } 
+              : s
+          )
+        );
       }
       
       setSyncingStaffId(null);
