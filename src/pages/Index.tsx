@@ -35,7 +35,7 @@ const Index = () => {
     try {
       // Send to backend
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL || 'https://whatsapp-receptionist-backend.onrender.com/api'}/calendar/callback`,
+        `https://whatsapp-receptionist-backend.onrender.com/api/calendar/callback`,
         {
           method: 'POST',
           headers: {
@@ -50,17 +50,23 @@ const Index = () => {
       console.log('Backend response:', data);
 
       if (response.ok) {
-        // Success - notify parent window if this is a popup
+        console.log('SUCCESS! Notifying parent window...');
+        
+        // Success - notify parent window
         if (window.opener) {
+          const parsedState = JSON.parse(state);
           window.opener.postMessage({
             type: 'CALENDAR_OAUTH_SUCCESS',
-            staffId: JSON.parse(state).staffId
+            staffId: parsedState.staffId
           }, '*');
           
-          // Close popup after brief delay
+          // Show success message briefly
+          document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;"><div style="text-align:center;"><h2 style="color:#10b981;">✓ Calendar Connected!</h2><p>This window will close automatically...</p></div></div>';
+          
+          // Close popup after 2 seconds
           setTimeout(() => {
             window.close();
-          }, 1000);
+          }, 2000);
         } else {
           // If not popup, redirect to staff page
           navigate('/staff');
@@ -76,7 +82,13 @@ const Index = () => {
           type: 'CALENDAR_OAUTH_ERROR',
           error: error instanceof Error ? error.message : 'Unknown error'
         }, '*');
-        window.close();
+        
+        // Show error message
+        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif;"><div style="text-center;"><h2 style="color:#ef4444;">✗ Connection Failed</h2><p>This window will close automatically...</p></div></div>';
+        
+        setTimeout(() => {
+          window.close();
+        }, 2000);
       } else {
         navigate('/staff');
       }
