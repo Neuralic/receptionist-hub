@@ -16,7 +16,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { staffApi, Staff } from '@/lib/api';
-import { Plus, Pencil, Trash2, Phone, Mail, Users, Calendar, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, Phone, Mail, Users, Calendar, CheckCircle2, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
 const mockStaff: Staff[] = [
@@ -54,25 +54,18 @@ export default function StaffPage() {
     };
     fetchStaff();
 
-    // Listen for OAuth callback
     window.addEventListener('message', handleOAuthCallback);
     return () => window.removeEventListener('message', handleOAuthCallback);
   }, []);
 
   const handleOAuthCallback = async (event: MessageEvent) => {
-    // Only accept messages from our OAuth popup
     if (event.data?.type === 'CALENDAR_OAUTH_SUCCESS') {
       const { staffId } = event.data;
       
-      console.log('OAuth success, refreshing staff list...');
-      
-      // Refresh staff list to show updated calendar status
       const result = await staffApi.getAll();
       if (result.data) {
         setStaff(result.data.staff);
-        console.log('Staff list refreshed:', result.data.staff);
       } else {
-        // If API fails, manually update the staff member
         setStaff(prevStaff => 
           prevStaff.map(s => 
             s.id === staffId 
@@ -101,7 +94,6 @@ export default function StaffPage() {
     setSyncingStaffId(staffId);
     
     try {
-      // Get OAuth URL from backend
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL || 'https://whatsapp-receptionist-backend.onrender.com/api'}/calendar/connect?staffId=${staffId}`,
         {
@@ -117,7 +109,6 @@ export default function StaffPage() {
 
       const { authUrl } = await response.json();
 
-      // Open OAuth popup
       const width = 600;
       const height = 700;
       const left = window.screenX + (window.outerWidth - width) / 2;
@@ -129,7 +120,6 @@ export default function StaffPage() {
         `width=${width},height=${height},left=${left},top=${top}`
       );
 
-      // Poll popup to check if it closed
       const pollTimer = setInterval(() => {
         if (popup?.closed) {
           clearInterval(pollTimer);
@@ -173,11 +163,7 @@ export default function StaffPage() {
 
     if (editingStaff) {
       const result = await staffApi.update(editingStaff.id, formData);
-      if (result.data) {
-        setStaff(staff.map(s => s.id === editingStaff.id ? { ...s, ...formData } : s));
-      } else {
-        setStaff(staff.map(s => s.id === editingStaff.id ? { ...s, ...formData } : s));
-      }
+      setStaff(staff.map(s => s.id === editingStaff.id ? { ...s, ...formData } : s));
       toast({ title: 'Staff member updated successfully' });
     } else {
       const result = await staffApi.create(formData);
@@ -216,7 +202,6 @@ export default function StaffPage() {
   return (
     <DashboardLayout>
       <div className="space-y-6">
-        {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 animate-fade-in">
           <div>
             <h1 className="text-2xl font-bold text-foreground">Staff</h1>
@@ -282,7 +267,6 @@ export default function StaffPage() {
           </Dialog>
         </div>
 
-        {/* Staff Grid */}
         {staff.length === 0 ? (
           <EmptyState
             icon={<Users className="w-8 h-8 text-muted-foreground" />}
@@ -308,19 +292,15 @@ export default function StaffPage() {
                     />
                     <div className="flex-1 min-w-0">
                       <h3 className="font-semibold text-foreground text-lg truncate">{member.name}</h3>
-                      <div className="flex items-center gap-2 mt-2">
-                        {member.calendarConnected ? (
+                      
+                      {member.calendarConnected && (
+                        <div className="flex items-center gap-2 mt-2">
                           <Badge variant="secondary" className="gap-1 bg-success/10 text-success border-0">
                             <CheckCircle2 className="w-3 h-3" />
                             Calendar Synced
                           </Badge>
-                        ) : (
-                          <Badge variant="secondary" className="gap-1 bg-warning/10 text-warning border-0">
-                            <XCircle className="w-3 h-3" />
-                            Not Synced
-                          </Badge>
-                        )}
-                      </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                   
