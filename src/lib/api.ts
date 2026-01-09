@@ -57,7 +57,7 @@ export const businessApi = {
 
 // Services
 export const servicesApi = {
-  getAll: () => api_request<{ services: Service[] }>('/business/services'),
+  getAll: () => apiRequest<{ services: Service[] }>('/business/services'), // FIXED HERE!
   
   create: (data: Omit<Service, 'id'>) =>
     apiRequest<{ service: Service }>('/business/services', {
