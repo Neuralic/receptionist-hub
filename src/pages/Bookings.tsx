@@ -87,6 +87,28 @@ const statusConfig: Record<BookingStatus, { label: string; variant: 'default' | 
   cancelled: { label: 'Cancelled', variant: 'destructive', icon: XCircle, className: 'bg-destructive/10 text-destructive border-0' },
 };
 
+// Helper function to get initials safely
+const getInitials = (name: string | null | undefined): string => {
+  if (!name) return '??';
+  
+  const parts = name.trim().split(' ');
+  if (parts.length === 1) return parts[0].substring(0, 2).toUpperCase();
+  
+  return parts.map(n => n[0]).join('').toUpperCase();
+};
+
+// Helper function to safely format date
+const safeFormatDate = (dateString: string | null | undefined, formatStr: string): string => {
+  if (!dateString) return 'N/A';
+  
+  try {
+    return format(parseISO(dateString), formatStr);
+  } catch (error) {
+    console.error('Date formatting error:', error);
+    return 'Invalid date';
+  }
+};
+
 export default function Bookings() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -125,7 +147,14 @@ export default function Bookings() {
   });
 
   const getBookingsForDay = (day: Date) => {
-    return bookings.filter(b => isSameDay(parseISO(b.startTime), day));
+    return bookings.filter(b => {
+      if (!b.startTime) return false;
+      try {
+        return isSameDay(parseISO(b.startTime), day);
+      } catch {
+        return false;
+      }
+    });
   };
 
   if (isLoading) {
@@ -206,12 +235,14 @@ export default function Bookings() {
                         <div className="flex items-center gap-4">
                           <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
                             <span className="text-sm font-medium text-primary">
-                              {booking.customer.name.split(' ').map(n => n[0]).join('')}
+                              {getInitials(booking.customer?.name)}
                             </span>
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-3 flex-wrap">
-                              <h3 className="font-semibold text-foreground">{booking.service.name}</h3>
+                              <h3 className="font-semibold text-foreground">
+                                {booking.service?.name || 'Unknown Service'}
+                              </h3>
                               <Badge variant={statusInfo.variant} className={statusInfo.className}>
                                 <StatusIcon className="w-3 h-3 mr-1" />
                                 {statusInfo.label}
@@ -221,15 +252,15 @@ export default function Bookings() {
                             <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 text-sm text-muted-foreground">
                               <div className="flex items-center gap-1.5">
                                 <User className="w-4 h-4" />
-                                <span>{booking.customer.name}</span>
+                                <span>{booking.customer?.name || 'Unknown Customer'}</span>
                               </div>
                               <div className="flex items-center gap-1.5">
                                 <CalendarIcon className="w-4 h-4" />
-                                <span>{format(parseISO(booking.startTime), 'MMM d, yyyy')}</span>
+                                <span>{safeFormatDate(booking.startTime, 'MMM d, yyyy')}</span>
                               </div>
                               <div className="flex items-center gap-1.5">
                                 <Clock className="w-4 h-4" />
-                                <span>{format(parseISO(booking.startTime), 'h:mm a')}</span>
+                                <span>{safeFormatDate(booking.startTime, 'h:mm a')}</span>
                               </div>
                             </div>
                           </div>
@@ -331,7 +362,7 @@ export default function Bookings() {
                               'bg-destructive/10 text-destructive'
                             }`}
                           >
-                            {format(parseISO(booking.startTime), 'h:mm a')}
+                            {safeFormatDate(booking.startTime, 'h:mm a')}
                           </div>
                         ))}
                         {dayBookings.length > 2 && (
